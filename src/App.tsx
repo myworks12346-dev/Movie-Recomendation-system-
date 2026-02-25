@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Play, Info, Search, User, ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
 import MovieCard from "./components/MovieCard";
 import Documentation from "./components/Documentation";
+import ChatBot from "./components/ChatBot";
 
 interface Movie {
   id: number;
@@ -161,6 +162,9 @@ export default function App() {
           <span className="hover:text-white cursor-pointer">Contact</span>
         </div>
       </footer>
+
+      {/* ChatBot */}
+      <ChatBot movies={movies} />
     </div>
   );
 }
