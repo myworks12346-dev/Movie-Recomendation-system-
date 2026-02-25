@@ -37,6 +37,8 @@ export default function App() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
