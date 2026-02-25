@@ -1,0 +1,5 @@
+{
+  "name": "CineMatch AI - OTT Recommendation System",
+  "description": "A premium academic movie recommendation platform featuring Cosine Similarity, KNN, and Collaborative Filtering algorithms with a cinematic OTT-style UI.",
+  "requestFramePermissions": []
+}
