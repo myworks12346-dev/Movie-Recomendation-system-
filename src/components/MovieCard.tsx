@@ -10,7 +10,13 @@ interface Movie {
   backdrop_url: string;
 }
 
-export default function MovieCard({ movie, onClick }: { movie: Movie; onClick: () => void }) {
+export default function MovieCard({ 
+  movie, 
+  onClick 
+}: { 
+  movie: Movie; 
+  onClick: () => void;
+}) {
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -10 }}

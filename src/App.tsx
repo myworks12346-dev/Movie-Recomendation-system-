@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Play, Info, Search, User, ChevronRight, ChevronLeft, BookOpen, Sparkles } from "lucide-react";
+import { Play, Info, Search, User, ChevronRight, ChevronLeft, BookOpen, Sparkles, Loader2 } from "lucide-react";
 import MovieCard from "./components/MovieCard";
 import Documentation from "./components/Documentation";
 import ChatBot from "./components/ChatBot";
@@ -37,6 +37,10 @@ export default function App() {
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
 
   const generateMoviePoster = useCallback(async (movie: Movie, retryCount = 0) => {
+    // Check permanent cache first
+    const cached = localStorage.getItem(`poster_${movie.id}`);
+    if (cached) return cached;
+
     try {
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-image",
@@ -45,50 +49,26 @@ export default function App() {
 
       for (const part of response.candidates?.[0]?.content?.parts || []) {
         if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
+          const base64 = `data:image/png;base64,${part.inlineData.data}`;
+          localStorage.setItem(`poster_${movie.id}`, base64);
+          return base64;
         }
       }
     } catch (error: any) {
-      // Handle Rate Limit (429) with Exponential Backoff
       if (error?.status === "RESOURCE_EXHAUSTED" || error?.code === 429) {
-        if (retryCount < 2) {
-          const delay = Math.pow(2, retryCount + 1) * 2000; // 4s, 8s
-          console.warn(`Rate limit hit for ${movie.title}. Retrying in ${delay}ms...`);
+        if (retryCount < 1) {
+          const delay = 5000; 
           await new Promise(resolve => setTimeout(resolve, delay));
           return generateMoviePoster(movie, retryCount + 1);
         }
-        console.error(`Quota exceeded for ${movie.title} after retries.`);
-      } else {
-        console.error(`Error generating poster for ${movie.title}:`, error);
       }
     }
     return null;
   }, []);
 
-  const generateAllPosters = async (movieList: Movie[]) => {
-    setIsGeneratingImages(true);
-    const updatedMovies = [...movieList];
-    
-    // Generate posters for the first few movies one by one with a small delay
-    for (let i = 0; i < Math.min(updatedMovies.length, 3); i++) { // Reduced to 3 to save quota
-      const posterUrl = await generateMoviePoster(updatedMovies[i]);
-      if (posterUrl) {
-        updatedMovies[i] = { ...updatedMovies[i], poster_url: posterUrl, backdrop_url: posterUrl };
-        setMovies([...updatedMovies]);
-        if (heroMovie?.id === updatedMovies[i].id) {
-          setHeroMovie(updatedMovies[i]);
-        }
-      }
-      // Add a mandatory delay between successful requests to stay under rate limits
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    setIsGeneratingImages(false);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Use a timeout to prevent hanging on slow/failed API calls
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
 
@@ -99,39 +79,41 @@ export default function App() {
         
         clearTimeout(timeoutId);
 
-        let finalMovies = FALLBACK_MOVIES;
+        let currentMovies = FALLBACK_MOVIES;
 
         if (moviesRes.status === 'fulfilled' && moviesRes.value.ok) {
           try {
             const moviesData = await moviesRes.value.json();
             if (Array.isArray(moviesData) && moviesData.length > 0) {
-              finalMovies = moviesData;
-              setMovies(moviesData);
-              setHeroMovie(moviesData[Math.floor(Math.random() * moviesData.length)]);
+              currentMovies = moviesData;
             }
-          } catch (e) {
-            console.warn("Could not parse movies JSON, using fallbacks");
-          }
+          } catch (e) {}
         }
 
-        if (recsRes.status === 'fulfilled' && recsRes.value.ok) {
-          try {
-            const recsData = await recsRes.value.json();
-            if (Array.isArray(recsData) && recsData.length > 0) {
-              setRecommendations(recsData);
+        // Apply permanent cache to movies
+        const cachedMovies = currentMovies.map((m: Movie) => {
+          const cached = localStorage.getItem(`poster_${m.id}`);
+          return cached ? { ...m, poster_url: cached, backdrop_url: cached } : m;
+        });
+        
+        setMovies(cachedMovies);
+        setHeroMovie(cachedMovies[Math.floor(Math.random() * cachedMovies.length)]);
+
+        // Generate missing posters ONCE and save them permanently
+        setIsGeneratingImages(true);
+        for (const movie of cachedMovies.slice(0, 5)) {
+          if (!localStorage.getItem(`poster_${movie.id}`)) {
+            const posterUrl = await generateMoviePoster(movie);
+            if (posterUrl) {
+              setMovies(prev => prev.map(m => m.id === movie.id ? { ...m, poster_url: posterUrl, backdrop_url: posterUrl } : m));
             }
-          } catch (e) {
-            console.warn("Could not parse recommendations JSON");
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Be gentle with quota
           }
         }
-        
-        // Automatically trigger AI image generation for the hero and first row
-        // We do this after a small delay to ensure the UI has rendered the fallbacks first
-        setTimeout(() => generateAllPosters(finalMovies), 1000);
-        
+        setIsGeneratingImages(false);
+
       } catch (error) {
         console.error("Error fetching data:", error);
-        // If everything fails, just ensure we're not loading anymore
       } finally {
         setLoading(false);
       }
@@ -234,9 +216,18 @@ export default function App() {
 
             {/* Movie Rows */}
             <div className="px-12 -mt-12 relative z-10 space-y-16 pb-20">
-              <MovieRow title="Recommended For You" movies={recommendations} />
-              <MovieRow title="Trending Now" movies={movies} />
-              <MovieRow title="Top Rated Classics" movies={[...movies].sort((a,b) => b.rating - a.rating)} />
+              <MovieRow 
+                title="Recommended For You" 
+                movies={recommendations} 
+              />
+              <MovieRow 
+                title="Trending Now" 
+                movies={movies} 
+              />
+              <MovieRow 
+                title="Top Rated Classics" 
+                movies={[...movies].sort((a,b) => b.rating - a.rating)} 
+              />
             </div>
           </motion.main>
         ) : (
@@ -276,7 +267,13 @@ export default function App() {
   );
 }
 
-function MovieRow({ title, movies }: { title: string; movies: Movie[] }) {
+function MovieRow({ 
+  title, 
+  movies 
+}: { 
+  title: string; 
+  movies: Movie[]; 
+}) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -286,7 +283,11 @@ function MovieRow({ title, movies }: { title: string; movies: Movie[] }) {
       </div>
       <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide mask-fade-right">
         {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} onClick={() => {}} />
+          <MovieCard 
+            key={movie.id} 
+            movie={movie} 
+            onClick={() => {}} 
+          />
         ))}
       </div>
     </div>
