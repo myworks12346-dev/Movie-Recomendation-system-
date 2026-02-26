@@ -14,15 +14,25 @@ export default function MovieCard({ movie, onClick }: { movie: Movie; onClick: (
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -10 }}
-      className="relative flex-none w-48 h-72 rounded-lg overflow-hidden cursor-pointer group shadow-2xl border border-white/5"
+      className="relative flex-none w-48 h-72 rounded-lg overflow-hidden cursor-pointer group shadow-2xl border border-white/10 bg-zinc-900"
       onClick={onClick}
     >
-      <img
-        src={movie.poster_url}
-        alt={movie.title}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        referrerPolicy="no-referrer"
-      />
+      <div className="w-full h-full bg-zinc-800 flex items-center justify-center relative">
+        <img
+          src={movie.poster_url}
+          alt={movie.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${movie.id + 100}/400/600`;
+          }}
+        />
+        {!movie.poster_url && (
+          <div className="absolute inset-0 flex items-center justify-center text-zinc-500 font-bold text-xs text-center px-4">
+            {movie.title}
+          </div>
+        )}
+      </div>
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
         <h3 className="text-white font-bold text-sm mb-1 uppercase tracking-wider">{movie.title}</h3>
         <div className="flex items-center gap-2 text-xs text-gray-300">

@@ -31,16 +31,16 @@ db.exec(`
 
 // Seed Data (Subset of MovieLens)
 const seedMovies = [
-  { id: 1, title: "The Shawshank Redemption", genres: "Drama, Crime", rating: 9.3, poster_url: "https://picsum.photos/seed/shawshank/400/600", backdrop_url: "https://picsum.photos/seed/shawshank_bg/1920/1080" },
-  { id: 2, title: "The Godfather", genres: "Crime, Drama", rating: 9.2, poster_url: "https://picsum.photos/seed/godfather/400/600", backdrop_url: "https://picsum.photos/seed/godfather_bg/1920/1080" },
-  { id: 3, title: "The Dark Knight", genres: "Action, Crime, Drama", rating: 9.0, poster_url: "https://picsum.photos/seed/darkknight/400/600", backdrop_url: "https://picsum.photos/seed/darkknight_bg/1920/1080" },
-  { id: 4, title: "Pulp Fiction", genres: "Crime, Drama", rating: 8.9, poster_url: "https://picsum.photos/seed/pulp/400/600", backdrop_url: "https://picsum.photos/seed/pulp_bg/1920/1080" },
-  { id: 5, title: "Inception", genres: "Action, Sci-Fi, Adventure", rating: 8.8, poster_url: "https://picsum.photos/seed/inception/400/600", backdrop_url: "https://picsum.photos/seed/inception_bg/1920/1080" },
-  { id: 6, title: "Interstellar", genres: "Adventure, Drama, Sci-Fi", rating: 8.6, poster_url: "https://picsum.photos/seed/interstellar/400/600", backdrop_url: "https://picsum.photos/seed/interstellar_bg/1920/1080" },
-  { id: 7, title: "The Matrix", genres: "Action, Sci-Fi", rating: 8.7, poster_url: "https://picsum.photos/seed/matrix/400/600", backdrop_url: "https://picsum.photos/seed/matrix_bg/1920/1080" },
-  { id: 8, title: "Parasite", genres: "Comedy, Drama, Thriller", rating: 8.6, poster_url: "https://picsum.photos/seed/parasite/400/600", backdrop_url: "https://picsum.photos/seed/parasite_bg/1920/1080" },
-  { id: 9, title: "Spirited Away", genres: "Animation, Adventure, Family", rating: 8.6, poster_url: "https://picsum.photos/seed/spirited/400/600", backdrop_url: "https://picsum.photos/seed/spirited_bg/1920/1080" },
-  { id: 10, title: "The Lion King", genres: "Animation, Adventure, Drama", rating: 8.5, poster_url: "https://picsum.photos/seed/lionking/400/600", backdrop_url: "https://picsum.photos/seed/lionking_bg/1920/1080" },
+  { id: 1, title: "Baahubali: The Beginning", genres: "Action, Drama", rating: 8.0, poster_url: "https://picsum.photos/seed/baahubali/400/600", backdrop_url: "https://picsum.photos/seed/baahubali_bg/1920/1080" },
+  { id: 2, title: "RRR", genres: "Action, Drama", rating: 8.8, poster_url: "https://picsum.photos/seed/rrr/400/600", backdrop_url: "https://picsum.photos/seed/rrr_bg/1920/1080" },
+  { id: 3, title: "Pushpa: The Rise", genres: "Action, Crime, Drama", rating: 7.6, poster_url: "https://picsum.photos/seed/pushpa/400/600", backdrop_url: "https://picsum.photos/seed/pushpa_bg/1920/1080" },
+  { id: 4, title: "Eega", genres: "Action, Comedy, Fantasy", rating: 7.7, poster_url: "https://picsum.photos/seed/eega/400/600", backdrop_url: "https://picsum.photos/seed/eega_bg/1920/1080" },
+  { id: 5, title: "Arjun Reddy", genres: "Action, Drama, Romance", rating: 8.0, poster_url: "https://picsum.photos/seed/arjunreddy/400/600", backdrop_url: "https://picsum.photos/seed/arjunreddy_bg/1920/1080" },
+  { id: 6, title: "Jersey", genres: "Drama, Sport", rating: 8.5, poster_url: "https://picsum.photos/seed/jersey/400/600", backdrop_url: "https://picsum.photos/seed/jersey_bg/1920/1080" },
+  { id: 7, title: "Mahanati", genres: "Biography, Drama", rating: 8.5, poster_url: "https://picsum.photos/seed/mahanati/400/600", backdrop_url: "https://picsum.photos/seed/mahanati_bg/1920/1080" },
+  { id: 8, title: "Magadheera", genres: "Action, Drama, Fantasy", rating: 7.7, poster_url: "https://picsum.photos/seed/magadheera/400/600", backdrop_url: "https://picsum.photos/seed/magadheera_bg/1920/1080" },
+  { id: 9, title: "The Shawshank Redemption", genres: "Drama, Crime", rating: 9.3, poster_url: "https://picsum.photos/seed/shawshank/400/600", backdrop_url: "https://picsum.photos/seed/shawshank_bg/1920/1080" },
+  { id: 10, title: "Inception", genres: "Action, Sci-Fi, Adventure", rating: 8.8, poster_url: "https://picsum.photos/seed/inception/400/600", backdrop_url: "https://picsum.photos/seed/inception_bg/1920/1080" },
 ];
 
 const insertMovie = db.prepare("INSERT OR IGNORE INTO movies (id, title, genres, rating, poster_url, backdrop_url) VALUES (?, ?, ?, ?, ?, ?)");
